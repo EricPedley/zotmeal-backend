@@ -98,14 +98,16 @@ class handler(BaseHTTPRequestHandler):
             path, params, query = self.__read_get()
             location            = self.__validate_query_location(query)
             meal, date          = self.__validate_query_meal_date(query)
+            do_refresh = dict.get(query, 'refresh', [False])[0]
 
             if USE_CACHE:
                 print(f'date from query params: {date}')
                 db_ref = get_db_reference(location, meal, date)
+                
 
-                db_data = db_ref.get()
+                db_data = db_ref.get() if do_refresh!='True' else None
 
-                if(db_data is None):
+                if db_data is None or do_refresh=='True':
                     data = get_diner_json(location, meal, date)
                     db_ref.set(data)
 

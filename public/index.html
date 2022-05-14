@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="images/icon.png">
     <title>API Testing Page</title>
     <style>
         a {
@@ -14,6 +16,14 @@
             border: solid black 2px;
             border-radius:5px;
             font-family: "Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji";
+            color: black;
+        }
+
+        a:visited {
+            color: black;
+        }
+        body {
+            background-color: #E3C292;
         }
     </style>
 </head>
@@ -21,6 +31,18 @@
 <body>
     <a href="/api?location=anteatery">Anteatery</a>
     <a href="/api?location=brandywine">Brandywine</a>
+    <a href="/api?location=anteatery&refresh=True">Refresh Anteatery</a>
+    <a href="/api?location=brandywine&refresh=True">Refresh Brandywine</a>
+    <script>
+        if ('serviceWorker' in navigator) {
+            try {
+                navigator.serviceWorker.register('serviceWorker.js');
+            }
+            catch (e) {
+                console.log('SW registration failed');
+            }
+        }
+    </script>
 </body>
 
 </html>

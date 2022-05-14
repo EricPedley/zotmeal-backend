@@ -1,0 +1,15 @@
+{
+    "name": "Zotmeal Dev Portal",
+    "start_url": "index.html",
+    "display": "standalone",
+    "background_color": "##E3C292",
+    "theme_color": "#FFFFFF",
+    "orientation": "portrait-primary",
+    "icons": [
+      {
+        "src": "images/icon.png",
+        "sizes": "1024x1024",
+        "type": "image/png"
+      }
+    ]
+  }
