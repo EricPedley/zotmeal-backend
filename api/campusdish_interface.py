@@ -36,6 +36,30 @@ def get_schedule_data(restaurant: str) -> dict:
     schedule time use int because frontend work with int
     schedule time is (100*hours)+minutes, where hours is in 24-hour time
     '''
+    # hardcoded schedule (replace with actual schedule when bug is fixed)
+    day_of_week = get_irvine_time().tm_wday # 0-6 inclusive, 0=monday
+    schedule = {
+        "breakfast": {
+            "start": 715,
+            "end": 1100
+        },
+        "lunch": {
+            "start":1100,
+            "end":1630
+        },
+        "dinner": {
+            "start": 1630,
+            "end": 2300
+        }
+    }
+    if day_of_week >= 4: # if friday or later
+        schedule["dinner"]["end"] = 2000
+        if day_of_week >= 5: # if it's the weekend
+            schedule["brunch"] = schedule["lunch"]
+            del schedule["lunch"]
+    return schedule
+
+
     url = 'https://uci.campusdish.com/LocationsAndMenus/'
     if restaurant == 'Anteatery':
         url += 'TheAnteatery'
