@@ -12,3 +12,6 @@ __pycache__
 .vercel
 .env
 !manifest.json
+bin
+lib
+include
