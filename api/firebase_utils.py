@@ -25,3 +25,11 @@ def get_db_reference(location: str, meal: int, date: str) -> db.Reference:
     
     # .get() returns None if nothing created
     return db.reference(f"{location}/{modified_datestring}/{meal}")
+
+def updateAnalytics(error=False) -> None:
+    ref = db.reference("analytics")
+    dbdata = ref.get()
+    ref.update({'visitcount': dbdata["visitcount"] + 1})
+    if error:
+        ref.update({'errorcount': dbdata["errorcount"] + 1})
+    return None

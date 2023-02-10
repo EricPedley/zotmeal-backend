@@ -16,7 +16,7 @@ print("Using cache" if USE_CACHE else "Not using cache")
 # e.g. force refresh of cache every hour
 
 if USE_CACHE:
-    from .firebase_utils import get_db_reference
+    from .firebase_utils import get_db_reference, updateAnalytics
 
 class InvalidQueryException(Exception):
     pass
@@ -73,6 +73,7 @@ class handler(BaseHTTPRequestHandler):
                 print(f"date from query params: {date}")
                 db_ref = get_db_reference(location, meal, date)
                 db_data = db_ref.get()
+                updateAnalytics()
 
                 if db_data is None or do_refresh=='True':
                     data = make_response_body(location, meal, date)
@@ -122,6 +123,7 @@ class handler(BaseHTTPRequestHandler):
             )
 
         except Exception as e:
+            updateAnalytics(error=True)
             traceback.print_exc()
             self.send_response_with_body(
                 status_code=500,
