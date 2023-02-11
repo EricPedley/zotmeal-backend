@@ -2,6 +2,7 @@ import traceback
 import requests
 import bs4
 import re
+from datetime import datetime
 from bs4 import BeautifulSoup as bs
 from .util import normalize_time_from_str, parse_date, get_irvine_time, get_date_str, MEAL_TO_PERIOD, EVENTS_PLACEHOLDER, LOCATION_INFO
 
@@ -36,65 +37,122 @@ def get_schedule_data(restaurant: str) -> dict:
     schedule time use int because frontend work with int
     schedule time is (100*hours)+minutes, where hours is in 24-hour time
     '''
-    try:
-        raise NotImplementedError("This function has bugs and isn't ready for prod yet")
-        url = 'https://uci.campusdish.com/LocationsAndMenus/'
-        if restaurant == 'Anteatery':
-            url += 'TheAnteatery'
+    url = 'https://uci.campusdish.com/LocationsAndMenus/'
+    if restaurant == 'Anteatery':
+        url += 'TheAnteatery'
+    else:
+        url += restaurant
+    schedule = {}
+    soup = bs(requests.get(url).text, 'html.parser')
+    meal_period = soup.select('.mealPeriod')
+
+    location_times = soup.select('span[class=location__times]')
+    times = []
+    meals = []
+
+    for time in location_times:
+        times.append(time.getText().split(' - '))
+    for meal in meal_period:
+        meals.append(meal.getText().lower())
+    # Hard coded to match the UCI website schedule
+    Weekday = {meals[0]: times[0],
+               meals[2]: times[3],
+               meals[3]: times[4],
+               meals[4]: times[5]}
+    Weekend = {meals[0]: times[1],
+               meals[1]: times[2],
+               meals[3]: times[4]
+               }
+    # if today is in the range of 0-4, it is Weekday otherwise weekend
+    today = datetime.now().weekday()
+
+    if today in range(0, 5):
+        data = list(Weekday.items())
+        if (today == 4):  # if today is friday there would be no latenight
+            data = data[:-1]
+    else:
+        data = Weekend.items()
+    for (meal, time) in data:
+        if re.match(r"^\d?\d:\d\d(AM|PM)$", time[0]) and re.match(r"^\d?\d:\d\d(AM|PM)$", time[1]):
+            start = normalize_time_from_str(time[0])
+            end = normalize_time_from_str(time[1])
+            schedule[meal] = {"start": start, "end": end}
         else:
-            url += restaurant
-        schedule = {}
-        soup = bs(requests.get(url).text, 'html.parser')
-        meal_period = soup.select('.mealPeriod')[:5]
-        location_times = soup.select('span[class=location__times]')[:5]
-        for idx, meal in enumerate(meal_period):
-            meal = meal.getText().lower()
-            times = location_times[idx].getText().split(' - ')
-            if re.match(r"^\d?\d:\d\d(AM|PM)$", times[0]) and re.match(r"^\d?\d:\d\d(AM|PM)$", times[1]):
-                start = normalize_time_from_str(times[0])
-                end = normalize_time_from_str(times[1])
-                schedule[meal] = {"start": start, "end": end}
-            else:
-                print("Invalid time")
-                schedule = {
-                    "breakfast": {
-                        "start": 0,
-                        "end": 1
-                    },
-                    "lunch": {
-                        "start": 2,
-                        "end": 3
-                    },
-                    "dinner": {
-                        "start": 4,
-                        "end": 5
-                    }
+            print("Invalid time")
+            schedule = {
+                "breakfast": {
+                    "start": 0,
+                    "end": 1
+                },
+                "lunch": {
+                    "start": 2,
+                    "end": 3
+                },
+                "dinner": {
+                    "start": 4,
+                    "end": 5
                 }
-        return schedule
-    except:
-        # return hardcoded schedule
-        day_of_week = get_irvine_time().tm_wday # 0-6 inclusive, 0=monday
-        schedule = {
-            "breakfast": {
-                "start": 715,
-                "end": 1100
-            },
-            "lunch": {
-                "start":1100,
-                "end":1630
-            },
-            "dinner": {
-                "start": 1630,
-                "end": 2300
             }
-        }
-        if day_of_week >= 4: # if friday or later, there's no latenight
-            schedule["dinner"]["end"] = 2000
-            if day_of_week >= 5: # if it's the weekend, lunch is brunch, and breakfast starts later
-                schedule["brunch"] = schedule["lunch"]
-                del schedule["lunch"]
-                schedule["breakfast"]["start"] = 900
-        return schedule
+    return schedule
+    # try:
+    #     raise NotImplementedError("This function has bugs and isn't ready for prod yet")
+    #     url = 'https://uci.campusdish.com/LocationsAndMenus/'
+    #     if restaurant == 'Anteatery':
+    #         url += 'TheAnteatery'
+    #     else:
+    #         url += restaurant
+    #     schedule = {}
+    #     soup = bs(requests.get(url).text, 'html.parser')
+    #     meal_period = soup.select('.mealPeriod')[:5]
+    #     location_times = soup.select('span[class=location__times]')[:5]
+    #     for idx, meal in enumerate(meal_period):
+    #         meal = meal.getText().lower()
+    #         times = location_times[idx].getText().split(' - ')
+    #         if re.match(r"^\d?\d:\d\d(AM|PM)$", times[0]) and re.match(r"^\d?\d:\d\d(AM|PM)$", times[1]):
+    #             start = normalize_time_from_str(times[0])
+    #             end = normalize_time_from_str(times[1])
+    #             schedule[meal] = {"start": start, "end": end}
+    #         else:
+    #             print("Invalid time")
+    #             schedule = {
+    #                 "breakfast": {
+    #                     "start": 0,
+    #                     "end": 1
+    #                 },
+    #                 "lunch": {
+    #                     "start": 2,
+    #                     "end": 3
+    #                 },
+    #                 "dinner": {
+    #                     "start": 4,
+    #                     "end": 5
+    #                 }
+    #             }
+    #     return schedule
+    # except:
+    #     # return hardcoded schedule
+    #     day_of_week = get_irvine_time().tm_wday # 0-6 inclusive, 0=monday
+    #     schedule = {
+    #         "breakfast": {
+    #             "start": 715,
+    #             "end": 1100
+    #         },
+    #         "lunch": {
+    #             "start":1100,
+    #             "end":1630
+    #         },
+    #         "dinner": {
+    #             "start": 1630,
+    #             "end": 2300
+    #         }
+    #     }
+    #     if day_of_week >= 4: # if friday or later, there's no latenight
+    #         schedule["dinner"]["end"] = 2000
+    #         if day_of_week >= 5: # if it's the weekend, lunch is brunch, and breakfast starts later
+    #             schedule["brunch"] = schedule["lunch"]
+    #             del schedule["lunch"]
+    #             schedule["breakfast"]["start"] = 900
+    #     return schedule
 
 
 def get_themed_event_data(restaurant: str) -> list[dict]:
