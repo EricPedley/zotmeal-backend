@@ -54,26 +54,30 @@ def get_schedule_data(restaurant: str) -> dict:
 
         for time in location_times:
             times.append(time.getText().split(' - '))
+        times.append([times[-2][0],times[-1][1]]) #extended dinner
         for meal in meal_period:
             meals.append(meal.getText().lower())
+        # print(times)
         # Hard coded to match the UCI website schedule
-        Weekday = {meals[0]: times[0],
-                meals[2]: times[3],
-                meals[3]: times[4],
-                meals[4]: times[5]}
-        Weekend = {meals[0]: times[1],
-                meals[1]: times[2],
-                meals[3]: times[4]
-                }
+        weekday = [(meals[0], times[0]), #Breakfast
+                (meals[2], times[3]), #Lunch
+                (meals[3], times[4]), #Dinner
+               (meals[3], times[-1])] #Extended dinner time because of latenight
+        weekend = [(meals[0], times[1]), #Breakfast
+                (meals[1], times[2]), #Brunch
+                (meals[3], times[4]) #Dinner
+        ]
         # if today is in the range of 0-4, it is Weekday otherwise weekend
         today = datetime.now().weekday()
-
-        if today in range(0, 5):
-            data = list(Weekday.items())
-            if (today == 4):  # if today is friday there would be no latenight
-                data = data[:-1]
+        if today>4:
+           data=weekend
         else:
-            data = Weekend.items()
+            data = weekday
+            if today ==4:
+                del data[-1]
+            else:
+                del data[-2]
+        
         for (meal, time) in data:
             if re.match(r"^\d?\d:\d\d(AM|PM)$", time[0]) and re.match(r"^\d?\d:\d\d(AM|PM)$", time[1]):
                 start = normalize_time_from_str(time[0])
