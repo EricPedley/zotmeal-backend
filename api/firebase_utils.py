@@ -33,6 +33,3 @@ def updateAnalytics(error=False) -> None:
     if error:
         ref.update({'errorcount': dbdata["errorcount"] + 1})
     return None
-
-def get_Analytics() -> db.Reference:
-    return db.reference("analytics")
