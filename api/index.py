@@ -7,8 +7,9 @@ import os  # imported to get environment variables
 from .util import is_valid_location, LOCATION_INFO
 from .parsing import make_response_body
 
-
 USE_CACHE = bool(os.getenv("USE_CACHE"))
+print(USE_CACHE)
+
 
 print("Using cache" if USE_CACHE else "Not using cache")
 

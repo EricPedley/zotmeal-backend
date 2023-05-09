@@ -6,7 +6,7 @@ from .util import read_schedule_UTC, get_current_meal, get_meal_name, get_irvine
 
 from .campusdish_interface import get_menu_data, get_schedule_data, get_themed_event_data
 
-from .sorting import station_ordering_key
+from .sorting import station_ordering_key, category_ordering_key, combining_keys
 
 
 def _lower_first_letter(s: str) -> str:
@@ -56,12 +56,30 @@ def _get_menu(location, meal_id, date):
 
         # iterate over station names in custom order
         for station_name in sorted(station_dict, key=station_ordering_key):
-            menu.append(
-                {
-                    'station': station_name,
-                    'menu': [{'category': category, 'items': items} for category, items in station_dict[station_name].items()]
-                }
-            )
+            if station_name in combining_keys:
+                items_combined = []
+                cat = ""
+                first = True
+                for category, items in sorted(station_dict[station_name].items(), key=category_ordering_key):
+                    if first:
+                        cat = category
+                        first = False
+                    for i in items:
+                        items_combined.append(i)
+                            
+                menu.append(
+                    {
+                        'station': station_name,
+                        'menu': [{'category': cat, 'items': items_combined}]
+                    }
+                )
+            else:
+                menu.append(
+                    {
+                        'station': station_name,
+                        'menu': [{'category': category, 'items': items} for category, items in sorted(station_dict[station_name].items(), key=category_ordering_key)]
+                    }
+                )
         return menu or EMPTY_MENU_OBJECT
     except:
         traceback.print_exc()

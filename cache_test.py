@@ -20,7 +20,7 @@ def test_with_cache(monkeypatch: pytest.MonkeyPatch):
     auto tests without putting them in source, go ahead and implement it.
     """
 
-    monkeypatch.setenv("USE_CACHE","True")
+    monkeypatch.setenv("USE_CACHE","TRUE")
 
     from api.index import handler
     from api.util import APIResponse

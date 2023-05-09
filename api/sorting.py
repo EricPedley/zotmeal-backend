@@ -27,3 +27,41 @@ def station_ordering_key(station_name: str) -> int:
     except ValueError:# if 
         print(f"ValueError (NON-BREAKING) on station orderings. Key {station_name} is not in list")
         return -1
+    
+ORDERINGS_CAT = [
+    "Entries",
+    "EntrÃ©es",
+    "Pizza",
+    "Cold Sandwiches",
+    "Hot Sandwiches",
+    "Dessert",
+    "Soups",
+    "Breads",
+    "Sides",
+    "Protein",
+    "Appetizers",
+    "Salads",
+    "Condiments",
+    "Cold Beverages",
+    "Protein",
+    "Grains",
+    "Sauces"
+]
+
+def category_ordering_key(category_name) -> int:
+    '''
+    Returns an integer used to sort category names by relevance
+    '''
+    print(category_name[0], "\n")
+    try:
+        return ORDERINGS_CAT.index(category_name[0])
+    except ValueError:
+        print(category_name)
+        print(f"ValueError (NON-BREAKING) on category orderings. Key {category_name} is not in list")
+        return -1
+    
+combining_keys = [
+    "Grubb / Mainline", 
+    "Crossroads",
+    "Home"
+]
