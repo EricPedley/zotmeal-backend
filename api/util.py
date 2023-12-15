@@ -289,7 +289,7 @@ MENU_DATA_ERROR_OBJECT = [
             {
                 'category': 'Error Description',
                             'items': [{
-                                'name': 'We encountered an error getting the menu data. If the campusdish website has the menu but we don\'t, send me an email at epedley@uci.edu and I\'ll look into a fix.',
+                                'name': 'We encountered an error getting the menu data. If the campusdish website has the menu but we don\'t, send me an email at katyh1@uci.edu and I\'ll look into a fix.',
                                 'description': '🤷‍♂️',
                                 "nutrition": {
                                     "isVegan": True,
