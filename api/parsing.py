@@ -30,7 +30,6 @@ def _get_menu(location, meal_id, date):
 
         station_id_to_name = dict(
             [(entry['StationId'], entry['Name']) for entry in menu_data["MenuStations"]])
-
         dish_list = menu_data["MenuProducts"]
 
         for dish in dish_list:
@@ -83,8 +82,9 @@ def make_response_body(location: str, meal_id: int = None, date: str = None) -> 
     restaurant = get_name(location)
     schedule = get_schedule_data(restaurant)
 
+    date = date or get_irvine_date()
     return {
-        'date': date or get_irvine_date(),
+        'date': date,
         'restaurant': restaurant,
         'refreshTime': int(time.time()),
         'schedule': schedule,
